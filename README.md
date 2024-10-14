@@ -1,70 +1,57 @@
-# Getting Started with Create React App
+ Facial Recognition App on AWS
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+#### Overview
+This project is a **Facial Recognition App** built from scratch using AWS services, including **Amazon Rekognition**, **Lambda**, **DynamoDB**, **API Gateway**, and **S3**. The app automates the process of identifying employees based on their facial features and integrates various AWS services to perform face detection and recognition.
 
-## Available Scripts
+#### Architecture
+The key AWS components used in this app are:
+1. **Amazon S3**: Stores visitor images.
+2. **Amazon Rekognition**: Identifies faces and matches them with employee data stored in DynamoDB.
+3. **AWS Lambda**: Orchestrates the image retrieval, face recognition, and employee data lookup.
+4. **Amazon DynamoDB**: Stores employee details and matches employee face data (using `rekognitionId` as the key).
+5. **Amazon API Gateway**: Provides a RESTful interface that allows external clients to upload images and trigger the recognition process.
 
-In the project directory, you can run:
+#### Workflow
+1. A visitor uploads their image, which is stored in **S3**.
+2. **API Gateway** triggers the **Lambda function**, passing the uploaded image's `ObjectKey` (unique image identifier).
+3. **Lambda** fetches the image from **S3** and sends it to **Rekognition** for analysis.
+4. **Rekognition** compares the uploaded image against the existing collection of employee faces. If a match is found, the `rekognitionId` is used to query the **DynamoDB** table for employee details.
+5. **DynamoDB** returns the employee's details (e.g., name), which are sent back to the client via **API Gateway**.
 
-### `npm start`
+#### AWS Services Used
+- **Amazon S3**: Stores uploaded visitor images.
+- **Amazon Rekognition**: Handles face detection and matching.
+- **AWS Lambda**: Executes the backend logic for recognizing and identifying employees.
+- **Amazon DynamoDB**: Stores employee details, such as name and `rekognitionId`.
+- **Amazon API Gateway**: Allows external systems to interface with the backend by providing HTTP endpoints.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### How to Deploy
+1. **S3 Setup**: 
+   - Create an S3 bucket (e.g., `visitor-image-profiling`) to store uploaded images.
+2. **Rekognition Setup**: 
+   - Create a collection in Amazon Rekognition (e.g., `employees`) and populate it with employee face data.
+3. **DynamoDB Setup**:
+   - Create a DynamoDB table (`employee`) with a partition key `recID` to store employee details.
+4. **Lambda Setup**: 
+   - Deploy the provided Lambda function, ensuring that it has proper permissions to access **S3**, **Rekognition**, and **DynamoDB**.
+5. **API Gateway Setup**:
+   - Create an API Gateway that allows external HTTP requests to trigger the Lambda function.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### API Endpoint
+- **Method**: `GET`
+- **Endpoint**: `https://your-api-gateway-url/dev/employee`
+- **Parameters**:
+  - `ObjectKey`: The key of the image uploaded to the S3 bucket.
 
-### `npm test`
+### Future Enhancements
+- Add user authentication to restrict access to the API.
+- Integrate CloudWatch alarms to monitor and alert for errors in the recognition process.
+- Add support for more detailed face analysis (e.g., age detection, emotion detection).
+- Improve error handling and provide more detailed feedback to the end-user.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+ 1. **Lambda Function**
+The Lambda function is the core of the application, responsible for handling the image recognition and querying DynamoDB for employee details. 
